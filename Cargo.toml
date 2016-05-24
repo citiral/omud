@@ -1,0 +1,6 @@
+[package]
+name = "omud"
+version = "0.1.0"
+authors = ["Olivier de Schaetzen <olivier4@telenet.be>"]
+
+[dependencies]
