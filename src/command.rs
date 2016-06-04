@@ -6,12 +6,12 @@ pub enum Command {
         location: String,
     },
     Remove {
-    	id: i32,
+    	id: usize,
     	location: String,
     },
     Move {
         from: String,
-        id: i32,
+        id: usize,
         to: String
     }
 }

@@ -28,7 +28,7 @@ fn start_listening(ip: &str, sender: Sender<Command>) -> Result<(), io::Error> {
                             stream.set_nonblocking(true);
 
                             // make a player
-                            let player = Entity::new(EntityValue::Creature(Box::new(Player::new(stream))));
+                            let player = Entity::Creature(Box::new(Player::new(stream)));
                             // add it to the game
                             sender.send(Command::Add{
                                 entity: player,
@@ -55,27 +55,45 @@ fn start_local_dummy_client(ip: String) {
         let mut stream = TcpStream::connect(&ip as &str).unwrap();
 
         // make a thread that only outputs what is received on the stream
-        if let Ok(mut stream) = stream.try_clone() {
-            thread::spawn(move || {
+        if let Ok(stream) = stream.try_clone() {
+            let t = thread::spawn(move || {
                 // make a buffered reader and print out the results line by line
-                let reader = BufReader::new(stream);
-                for line in reader.lines() {
-                    println!("{}", line.unwrap());
+                let mut reader = BufReader::new(stream);
+                loop {
+                    let mut line = String::new();
+                    match reader.read_line(&mut line) {
+                        Ok(_) => {
+                            if line == "" {
+                                println!("Closing client read thread.");
+                                return;
+                            } else {
+                                print!("{}", line);
+                            }
+                        }
+                        Err(_) => {
+                            println!("Closing client read thread.");
+                            return;
+                        }
+                    }
                 }
             });
+
         } else {
             println!("Failed cloning stream.");
             return;
         }
-        
+
         // and then continuously send our input to the stream
         let stdin = io::stdin();
 
         loop {
             let mut line = String::new();
-            stdin.read_line(&mut line);
-            line = line.trim().to_string();
-            stream.write(line.as_bytes()).unwrap();
+            stdin.read_line(&mut line).unwrap();
+            line = line.to_string();
+            if let Err(_) = stream.write(line.as_bytes()) {
+                println!("Closing client write thread.");
+                return;
+            }
         }
     });
 }
@@ -83,9 +101,9 @@ fn start_local_dummy_client(ip: String) {
 fn create_test_world<'a>() -> World {
     let mut world = World::new();
 
-    world.add_room("spawn", Room::new());
-    world.add_room("beep1", Room::new());
-    world.add_room("beep2", Room::new());
+    world.add_room(Room::new("spawn".to_string()));
+    world.add_room(Room::new("beep1".to_string()));
+    world.add_room(Room::new("beep2".to_string()));
 
     world
 }
@@ -97,8 +115,24 @@ fn handle_command(world: &mut World, command: Command) {
                 room.add_entity(entity);
             }
         },
-        _ => {
-            println!("Unimplemented action.");
+        Command::Remove{id, location} => {
+            if let Some(room) = world.get_room_mut(&location) {
+                room.remove_entity(id);
+            } else {
+                println!("Error removing player");
+            }
+        },
+        Command::Move{id, from, to} => {
+            let entity = match world.get_room_mut(&from) {
+                Some(room) => room.remove_entity(id),
+                None => None
+            };
+
+            if let Some(e) = entity {
+                if let Some(room) = world.get_room_mut(&to) {
+                    room.add_entity(e);
+                }
+            }
         }
     }
 }

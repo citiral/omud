@@ -4,7 +4,7 @@ use command::Command;
 use std::sync::mpsc::Sender;
 
 pub struct World {
-    rooms: HashMap<String, Room>,
+    rooms: HashMap<String, Room>
 }
 
 impl World {
@@ -22,8 +22,8 @@ impl World {
         self.rooms.get_mut(identifier)
     }
 
-    pub fn add_room(&mut self, identifier: &str, room: Room) {
-        self.rooms.insert(identifier.to_string(), room);
+    pub fn add_room(&mut self, room: Room) {
+        self.rooms.insert(room.get_id().to_string(), room);
     }
 
     pub fn tick(&self, sender: Sender<Command>) {
