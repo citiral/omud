@@ -1,34 +1,41 @@
 // while developping allow dead code so the compiler doesn't shit itself as much
 #![allow(dead_code)]
 
+extern crate time;
+
 mod room;
 mod entity;
 mod world;
 mod creature;
 mod command;
+mod player;
+mod item;
 
+use player::*;
 use command::*;
 use room::*;
 use world::*;
-use creature::*;
 
+use item::*;
 use entity::*;
 use std::thread;
-use std::io::{self, Read, BufRead, BufReader, Write};
+use std::io::{self, BufRead, BufReader, Write};
 use std::net::{TcpStream, TcpListener};
 use std::sync::mpsc::{channel, Sender};
+use time::{Duration, PreciseTime};
+
 
 fn start_listening(ip: &str, sender: Sender<Command>) -> Result<(), io::Error> {
     match TcpListener::bind(ip) {
         Ok(listener) => {
             thread::spawn(move || {
-                for mut stream in listener.incoming() {
+                for stream in listener.incoming() {
                     match stream {
-                        Ok(mut stream) => {
-                            stream.set_nonblocking(true);
+                        Ok(stream) => {
+                            stream.set_nonblocking(true).unwrap();
 
                             // make a player
-                            let player = Entity::Creature(Box::new(Player::new(stream)));
+                            let player = Entity::Player(Player::new(stream));
                             // add it to the game
                             sender.send(Command::Add{
                                 entity: player,
@@ -56,18 +63,19 @@ fn start_local_dummy_client(ip: String) {
 
         // make a thread that only outputs what is received on the stream
         if let Ok(stream) = stream.try_clone() {
-            let t = thread::spawn(move || {
+            thread::spawn(move || {
                 // make a buffered reader and print out the results line by line
                 let mut reader = BufReader::new(stream);
                 loop {
                     let mut line = String::new();
+
                     match reader.read_line(&mut line) {
                         Ok(_) => {
                             if line == "" {
                                 println!("Closing client read thread.");
                                 return;
                             } else {
-                                print!("{}", line);
+                                print!("> {}", line);
                             }
                         }
                         Err(_) => {
@@ -101,40 +109,21 @@ fn start_local_dummy_client(ip: String) {
 fn create_test_world<'a>() -> World {
     let mut world = World::new();
 
-    world.add_room(Room::new("spawn".to_string()));
-    world.add_room(Room::new("beep1".to_string()));
-    world.add_room(Room::new("beep2".to_string()));
+    let mut r1 = Room::new("spawn".to_string());
+    let mut r2 = Room::new("beep1".to_string());
+    let mut r3 = Room::new("beep2".to_string());
+
+    r1.connect_to_room(&mut r2, "north".to_string(), "south".to_string());
+
+    r2.add_entity(Entity::Item(Item::new(0, "gold coin".to_string())));
+
+    world.add_room(r1);
+    world.add_room(r2);
+    world.add_room(r3);
+
+
 
     world
-}
-
-fn handle_command(world: &mut World, command: Command) {
-    match command {
-        Command::Add{entity, location} => {
-            if let Some(room) = world.get_room_mut(&location) {
-                room.add_entity(entity);
-            }
-        },
-        Command::Remove{id, location} => {
-            if let Some(room) = world.get_room_mut(&location) {
-                room.remove_entity(id);
-            } else {
-                println!("Error removing player");
-            }
-        },
-        Command::Move{id, from, to} => {
-            let entity = match world.get_room_mut(&from) {
-                Some(room) => room.remove_entity(id),
-                None => None
-            };
-
-            if let Some(e) = entity {
-                if let Some(room) = world.get_room_mut(&to) {
-                    room.add_entity(e);
-                }
-            }
-        }
-    }
 }
 
 fn main() {
@@ -150,14 +139,30 @@ fn main() {
 
     start_local_dummy_client("localhost:25565".to_string());
 
+    let mut now = PreciseTime::now();
+    let steplength = Duration::milliseconds(1000/20);
+
     loop {
+
+        let elapsed = now.to(PreciseTime::now());
+
+        if elapsed > steplength {
         // tick the world
-        world.tick(sender.clone());
+            now = PreciseTime::now();
+            world.tick(sender.clone());
+        } else {
+            let remaining = steplength - elapsed;
+            //println!("sleeping for {}", remaining.num_milliseconds());
+            thread::sleep(std::time::Duration::from_millis(remaining.num_milliseconds() as u64));
+            continue;
+        }
 
         // handle all events
         loop {
             if let Ok(command) = receiver.try_recv() {
-                handle_command(&mut world, command);
+                if let Err(e) = command.execute(&mut world) {
+                    println!("Error executing command: {}", e);
+                }
             } else {
                 break;
             }

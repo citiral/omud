@@ -4,6 +4,8 @@ use std::sync::mpsc::Sender;
 use command::Command;
 use room::Room;
 use world::World;
+use player::Player;
+use item::Item;
 
 static ENTITY_ID_GENERATOR: AtomicUsize = ATOMIC_USIZE_INIT;
 
@@ -18,7 +20,7 @@ pub trait Id {
 }
 
 pub trait Tick {
-    fn tick(&mut self, room: &Room, world: &World, sender: Sender<Command>);
+    fn tick(&self, room: &Room, world: &World, sender: Sender<Command>);
 }
 
 pub fn generate_id() -> usize {
@@ -26,13 +28,43 @@ pub fn generate_id() -> usize {
 }
 
 pub enum Entity {
-    Creature(Box<Creature + Send>)
+    Player(Player),
+    Item(Item),
 }
 
 impl Entity {
     pub fn get_id(&self) -> usize {
         match self {
-            &Entity::Creature(ref creature) => creature.get_id()
+            &Entity::Player(ref player) => player.get_id(),
+            &Entity::Item(ref item) => item.get_id()
+        }
+    }
+
+    pub fn as_tickable(&self) -> Option<&Tick> {
+        match self {
+            &Entity::Player(ref player) => Some(player),
+            _ => None,
+        }
+    }
+
+    pub fn as_creature(&self) -> Option<&Creature> {
+        match self {
+            &Entity::Player(ref player) => Some(player),
+            _ => None
+        }
+    }
+
+    pub fn as_item(&self) -> Option<&Item> {
+        match self {
+            &Entity::Item(ref item) => Some(item),
+            _ => None
+        }
+    }
+
+    pub fn as_describable(&self) -> Option<&Describable> {
+        match self {
+            &Entity::Player(ref player) => Some(player),
+            &Entity::Item(ref item) => Some(item)
         }
     }
 }
