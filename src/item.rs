@@ -1,37 +1,51 @@
-use entity::{self, Describable, Id};
+use entity::{self, Stackable, Item, Describable, Id};
 
-pub struct Item {
+
+pub struct Thing {
     id: usize,
-    type_id: usize,
+    item_type: String,
     name: String,
+    count: u64,
 }
 
-impl Item {
-    pub fn new(type_id: usize, name: String) -> Item {
-        Item {
-            id: entity::generate_id(),
-            type_id: type_id,
-            name: name
-        }
-    }
-}
-
-impl Id for Item {
-    fn get_id(&self) -> usize {
-        self.id
-    }
-
-    fn set_id(&mut self, id: usize) {
-        self.id = id
-    }
-}
-
-impl Describable for Item {
+impl Describable for Thing {
     fn get_name(&self) -> String {
         self.name.clone()
     }
 
     fn get_description(&self) -> String {
         "a ".to_string() + &self.name
+    }
+}
+
+impl Stackable for Thing {
+    fn get_stack_count(&self) -> u64 {
+        self.count
+    }
+}
+
+impl Id for Thing {
+    fn get_id(&self) -> usize {
+        self.id
+    }
+    fn set_id(&mut self, id: usize) {
+        self.id = id
+    }
+}
+
+impl Item for Thing {
+    fn get_item_type(&self) -> &str {
+        &self.item_type
+    }
+}
+
+impl Thing {
+    pub fn new(type_id: String, name: String, count: u64) -> Thing {
+        Thing {
+            id: entity::generate_id(),
+            item_type: type_id,
+            name: name,
+            count: count,
+        }
     }
 }

@@ -115,7 +115,7 @@ fn create_test_world<'a>() -> World {
 
     r1.connect_to_room(&mut r2, "north".to_string(), "south".to_string());
 
-    r2.add_entity(Entity::Item(Item::new(0, "gold coin".to_string())));
+    r2.add_entity(Entity::Thing(Thing::new("gold".to_string(), "gold coin".to_string(), 1)));
 
     world.add_room(r1);
     world.add_room(r2);

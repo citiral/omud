@@ -5,9 +5,17 @@ use command::Command;
 use room::Room;
 use world::World;
 use player::Player;
-use item::Item;
+use item::Thing;
 
 static ENTITY_ID_GENERATOR: AtomicUsize = ATOMIC_USIZE_INIT;
+
+pub trait Item {
+    fn get_item_type(&self) -> &str;
+}
+
+pub trait Stackable: Item {
+    fn get_stack_count(&self) -> u64;
+}
 
 pub trait Describable {
     fn get_name(&self) -> String;
@@ -29,14 +37,14 @@ pub fn generate_id() -> usize {
 
 pub enum Entity {
     Player(Player),
-    Item(Item),
+    Thing(Thing),
 }
 
 impl Entity {
     pub fn get_id(&self) -> usize {
         match self {
             &Entity::Player(ref player) => player.get_id(),
-            &Entity::Item(ref item) => item.get_id()
+            &Entity::Thing(ref thing) => thing.get_id()
         }
     }
 
@@ -56,7 +64,7 @@ impl Entity {
 
     pub fn as_item(&self) -> Option<&Item> {
         match self {
-            &Entity::Item(ref item) => Some(item),
+            &Entity::Thing(ref thing) => Some(thing),
             _ => None
         }
     }
@@ -64,7 +72,7 @@ impl Entity {
     pub fn as_describable(&self) -> Option<&Describable> {
         match self {
             &Entity::Player(ref player) => Some(player),
-            &Entity::Item(ref item) => Some(item)
+            &Entity::Thing(ref thing) => Some(thing)
         }
     }
 }
