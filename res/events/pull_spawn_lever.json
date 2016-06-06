@@ -1,0 +1,30 @@
+{
+  "name": "pull_spawn_lever",
+
+  "condition": [,
+    {
+      "test": "playerdata-nequal",
+      "key": "spawn-lever-pulled",
+      "value": true,
+    }
+  ],
+
+  "success": [
+    {
+      "action": "tell",
+      "text": "As you pull the lever you hear the sound of a door unlocking.",
+    },
+    {
+      "action": "playerdata-set",
+      "key": "spawn-lever-pulled",
+      "value": true,
+    }
+  ],
+
+  "failure": [
+    {
+      "action": "tell",
+      "text": "The lever is already down.",
+    }
+  ]
+}

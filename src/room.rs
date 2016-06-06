@@ -3,16 +3,18 @@ use entity::*;
 use world::World;
 use command::Command;
 use std::sync::mpsc::Sender;
+use rustc_serialize::json::Json;
 
 pub struct Room {
     id: String,
-    name: String,
-    description: String,
+    pub name: String,
+    pub description: String,
     exits: Vec<(String, String)>, // these are (exit name, room id)
     pub entities: HashMap<usize, Entity>,
 }
 
 impl Room {
+
     pub fn new(id: String) -> Room {
         Room {
             id: id.clone(),
@@ -32,6 +34,10 @@ impl Room {
         None
     }
 
+    pub fn add_exit(&mut self, name: String, id: String) {
+        self.exits.push((name, id));
+    }
+
     pub fn connect_to_room(&mut self, room: &mut Room, here: String, there: String) {
         self.exits.push((here, room.id.clone()));
         room.exits.push((there, self.id.clone()));
@@ -47,14 +53,6 @@ impl Room {
 
     pub fn get_id(&self) -> &str {
         &self.id
-    }
-
-    pub fn get_name(&self) -> &str {
-        &self.name
-    }
-
-    pub fn get_description(&self) -> &str {
-        &self.description
     }
 
     pub fn add_entity(&mut self, entity: Entity) {

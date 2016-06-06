@@ -1,0 +1,8 @@
+{
+  "id": "spawn",
+  "name": "The spawn room",
+  "description": "You wake up and see a dimly lit room, you can't help but think of it as some sort of spawn room.",
+  "connections": [
+    {"direction": "north", "room": "garden"}
+  ]
+}

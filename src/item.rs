@@ -1,5 +1,4 @@
-use entity::{self, Stackable, Item, Describable, Id};
-
+use entity::{self, Item, Entity, Stackable, Describable, Id};
 
 pub struct Thing {
     id: usize,

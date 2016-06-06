@@ -1,0 +1,30 @@
+{
+  "id": "garden",
+  "name": "The garden",
+  "description": "You see like a lot of grass and stuff. Not the 420 kind.",
+
+  "connections": [
+    {
+      "direction": "south",
+      "room": "spawn"
+    },
+    {
+      "direction": "north",
+      "room": "field",
+      "events": [
+        ["go", "spawn_door_lever"]
+      ]
+    }
+  ],
+
+  "actors": [
+    {
+      "name": "A lever",
+      "type": "static",
+      "description": "An innocent looking lever.",
+      "events": [
+        ["use", "pull_spawn_lever"]
+      ]
+    }
+  ]
+}

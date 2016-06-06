@@ -4,7 +4,7 @@ use world::World;
 use std::sync::mpsc::Sender;
 use command::Command;
 use room::Room;
-use entity::{self, Entity, Id, Tick, Describable};
+use entity::{self, Entity, Id, Tick, Describable, AsEntity};
 use std::cell::RefCell;
 use creature::Creature;
 
@@ -89,9 +89,9 @@ impl Player {
                 sender.send(Command::Remove{id: self.get_id(), location: room.get_id().to_string()}).unwrap();
             },
             "look" => {
-                self.writeln(room.get_name());
+                self.writeln(&room.name);
                 self.writeln("");
-                self.writeln(room.get_description());
+                self.writeln(&room.description);
                 self.writeln("");
                 self.write("Contents: ");
 

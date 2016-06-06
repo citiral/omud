@@ -1,0 +1,21 @@
+{
+  "name": "spawn_door_lever",
+
+  "condition": [,
+    {
+      "test": "playerdata-equal",
+      "key": "spawn-lever-pulled",
+      "value": true,
+    }
+  ],
+
+  "success": [
+  ],
+
+  "failure": [
+    {
+      "action": "tell",
+      "text": "The passage is blocked by a fence door.",
+    }
+  ]
+}

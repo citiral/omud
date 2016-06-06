@@ -2,6 +2,7 @@
 #![allow(dead_code)]
 
 extern crate time;
+extern crate rustc_serialize;
 
 mod room;
 mod entity;
@@ -10,19 +11,22 @@ mod creature;
 mod command;
 mod player;
 mod item;
+mod json;
 
 use player::*;
 use command::*;
 use room::*;
 use world::*;
 
+use std::fs::*;
 use item::*;
 use entity::*;
 use std::thread;
-use std::io::{self, BufRead, BufReader, Write};
+use std::io::{self, BufRead, BufReader, Write, Read};
 use std::net::{TcpStream, TcpListener};
 use std::sync::mpsc::{channel, Sender};
 use time::{Duration, PreciseTime};
+use rustc_serialize::json::Json;
 
 
 fn start_listening(ip: &str, sender: Sender<Command>) -> Result<(), io::Error> {
@@ -127,7 +131,16 @@ fn create_test_world<'a>() -> World {
 }
 
 fn main() {
-    let mut world = create_test_world();
+
+    let mut world = json::parse_world_from_resources();
+
+    if let Err(err) = world {
+        println!("Error parsing world: {}", err);
+        return;
+    }
+
+    let mut world = world.unwrap();
+
 
     let (sender, receiver) = channel::<Command>();
 

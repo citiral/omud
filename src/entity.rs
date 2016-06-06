@@ -1,4 +1,3 @@
-use creature::*;
 use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
 use std::sync::mpsc::Sender;
 use command::Command;
@@ -6,8 +5,13 @@ use room::Room;
 use world::World;
 use player::Player;
 use item::Thing;
+use creature::Creature;
 
 static ENTITY_ID_GENERATOR: AtomicUsize = ATOMIC_USIZE_INIT;
+
+pub trait AsEntity {
+    fn as_entity(self) -> Entity;
+}
 
 pub trait Item {
     fn get_item_type(&self) -> &str;
