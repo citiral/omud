@@ -1,12 +1,13 @@
 use std::net::{TcpStream, Shutdown};
 use std::io::{Read, Write};
-use world::World;
 use std::sync::mpsc::Sender;
+use std::cell::RefCell;
+
+use world::World;
 use command::Command;
 use room::Room;
-use entity::{self, Id, Tick, Describable};
-use std::cell::RefCell;
 use creature::Creature;
+use entity::{self, Id, Tick, Describable};
 
 pub struct Player {
     id: usize,
@@ -87,7 +88,27 @@ impl Player {
                 self.writeln("");
                 self.writeln(&room.description);
                 self.writeln("");
-                self.writeln(&format!("Contents: {}", &room.items.len()));
+
+                self.write("Creatures here: ");
+                for creature in room.creatures.values() {
+                    if let Some(describable) = creature.as_describable() {
+                        if creature.get_id() == self.id {
+                            self.write("you ");
+                        } else {
+                            self.write(&describable.get_name());
+                            self.write(" ");
+                        }
+                    }
+                }
+                self.writeln("");
+
+                if !room.items.is_empty() {
+                    self.write("Items here: ");
+                    for item in room.items.values() {
+                        self.write(&item.get_name());
+                    }
+                    self.writeln("");
+                }
 
                 /*for entity in room.entities.values() {
                     if let Some(describable) = entity.as_describable() {

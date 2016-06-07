@@ -1,10 +1,13 @@
 use std::collections::HashMap;
+use std::sync::mpsc::Sender;
+use std::iter::Iterator;
+
 use entity::*;
 use creature::Creature;
 use world::World;
 use command::Command;
-use std::sync::mpsc::Sender;
-use item::{ItemSpawnDefinition, Item};
+use item::{ItemSpawn, Item};
+use WORLD_DATA;
 
 pub struct Room {
     id: String,
@@ -13,7 +16,7 @@ pub struct Room {
     exits: Vec<(String, String)>, // these are (exit name, room id)
     pub creatures: HashMap<usize, Creature>,
     pub items: HashMap<usize, Item>,
-    itemSpawnDefinitions: Vec<ItemSpawnDefinition>,
+    item_spawns: Vec<ItemSpawn>,
 }
 
 impl Room {
@@ -26,7 +29,7 @@ impl Room {
             exits: Vec::new(),
             creatures: HashMap::new(),
             items: HashMap::new(),
-            itemSpawnDefinitions: Vec::new(),
+            item_spawns: Vec::new(),
         }
     }
 
@@ -60,12 +63,12 @@ impl Room {
         &self.id
     }
 
-    pub fn add_item_spawn(&mut self, spawn: ItemSpawnDefinition) {
-        self.itemSpawnDefinitions.push(spawn);
+    pub fn add_item_spawn(&mut self, spawn: ItemSpawn) {
+        self.item_spawns.push(spawn);
     }
 
     pub fn add_item(&mut self, item: Item) {
-        self.items.insert(item.id, item);
+        self.items.insert(item.get_id(), item);
     }
 
     pub fn add_creature(&mut self, entity: Creature) {
@@ -86,16 +89,16 @@ impl Room {
 
     pub fn init(&self, world: &World, sender: Sender<Command>) {
         // spawn the initial items
-        for spawn in &self.itemSpawnDefinitions {
-            if let Some(definition) = world.get_item_definition(&spawn.id) {
+        for spawn in &self.item_spawns {
+            if let Some(definition) = WORLD_DATA.items.get(&spawn.id) {
                 if definition.stackable {
-                    sender.send(Command::AddItem {
+                    let _ = sender.send(Command::AddItem {
                         item: definition.spawn(spawn.count),
                         location: self.id.clone(),
                     });
                 } else {
                     for _ in 0..spawn.count {
-                        sender.send(Command::AddItem { 
+                        let _ = sender.send(Command::AddItem {
                             item: definition.spawn(1),
                             location: self.id.clone(),
                         });
@@ -108,7 +111,7 @@ impl Room {
             if let Some(creature) = creature.as_init() {
                 creature.init(self, world, sender.clone());
             }
-        };        
+        };
     }
 
     pub fn tick(&self, world: &World, sender: Sender<Command>) {

@@ -3,8 +3,6 @@ use std::sync::mpsc::Sender;
 use command::Command;
 use room::Room;
 use world::World;
-use player::Player;
-use creature::Creature;
 
 static ENTITY_ID_GENERATOR: AtomicUsize = ATOMIC_USIZE_INIT;
 
@@ -29,4 +27,3 @@ pub trait Init {
 pub trait Tick {
     fn tick(&self, room: &Room, world: &World, sender: Sender<Command>);
 }
-

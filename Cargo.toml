@@ -6,3 +6,4 @@ authors = ["Olivier de Schaetzen <olivier4@telenet.be>"]
 [dependencies]
 time = "0.1"
 rustc-serialize = "0.3"
+lazy_static = "0.2.1"

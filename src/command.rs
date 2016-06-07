@@ -1,4 +1,3 @@
-use entity::*;
 use item::Item;
 use creature::Creature;
 use world::World;

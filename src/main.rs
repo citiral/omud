@@ -1,6 +1,8 @@
 // while developping allow dead code so the compiler doesn't shit itself as much
 #![allow(dead_code)]
 
+#[macro_use]
+extern crate lazy_static;
 extern crate time;
 extern crate rustc_serialize;
 
@@ -13,18 +15,25 @@ mod player;
 mod item;
 mod json;
 mod event;
+mod datastore;
 
 use player::*;
 use command::*;
-use creature::Creature;
-
+use creature::*;
 use entity::*;
+use world::*;
+
 use std::thread;
 use std::io::{self, BufRead, BufReader, Write};
 use std::net::{TcpStream, TcpListener};
 use std::sync::mpsc::{channel, Sender};
 use time::{Duration, PreciseTime};
 
+lazy_static! {
+    static ref WORLD_DATA: WorldData = {
+        json::parse_world_data_from_resources()
+    };
+}
 
 fn start_listening(ip: &str, sender: Sender<Command>) -> Result<(), io::Error> {
     match TcpListener::bind(ip) {

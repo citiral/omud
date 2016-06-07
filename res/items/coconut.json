@@ -1,10 +1,10 @@
 {
 	"id": "coconut",
 	"name": "A coconut",
+	"description": "A juicy coconut, sure to restore some health.",
 	"stackable": true,
 
-
     "events": [
-		["use", "heal_consumable"]
+			["use", "heal_consumable"]
     ]
 }
