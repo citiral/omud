@@ -16,6 +16,7 @@ mod event;
 
 use player::*;
 use command::*;
+use creature::Creature;
 
 use entity::*;
 use std::thread;
@@ -33,12 +34,11 @@ fn start_listening(ip: &str, sender: Sender<Command>) -> Result<(), io::Error> {
                     match stream {
                         Ok(stream) => {
                             stream.set_nonblocking(true).unwrap();
-
                             // make a player
-                            let player = Entity::Player(Player::new(stream));
+                            let player = Creature::Player(Player::new(stream));
                             // add it to the game
-                            sender.send(Command::Add{
-                                entity: player,
+                            sender.send(Command::AddCreature {
+                                creature: player,
                                 location: "spawn".to_string()
                             }).unwrap();
                         },

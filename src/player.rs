@@ -16,12 +16,6 @@ pub struct Player {
     stream: RefCell<TcpStream>,
 }
 
-impl Creature for Player {
-    fn get_health(&self) -> f32 {
-        self.health
-    }
-}
-
 impl Id for Player {
     fn get_id(&self) -> usize {
         self.id

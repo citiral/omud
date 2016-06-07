@@ -1,0 +1,10 @@
+{
+	"id": "coconut",
+	"name": "A coconut",
+	"stackable": true,
+
+
+    "events": [
+		["use", "heal_consumable"]
+    ]
+}

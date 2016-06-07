@@ -1,4 +1,4 @@
-use entity::{self, Item, Entity, Stackable, Describable, Id};
+/*use entity::{self, Item, Entity, Stackable, Describable, Id};
 
 pub struct Thing {
     id: usize,
@@ -47,4 +47,24 @@ impl Thing {
             count: count,
         }
     }
+}
+*/
+
+pub struct ItemDefinition {
+    pub id: String,
+    pub name: String,
+    pub stackable: bool,
+}
+
+pub struct ItemSpawnDefinition {
+    id: String,
+    count: u32,
+    max: u32,
+    respawn: u32,
+}
+
+pub struct Item<'a> {
+    id: usize,
+    count: u32,
+    itemId: &'a str,
 }

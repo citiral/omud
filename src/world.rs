@@ -1,5 +1,6 @@
 use room::*;
 use event::*;
+use item::ItemDefinition;
 
 use std::collections::HashMap;
 use command::Command;
@@ -7,6 +8,7 @@ use std::sync::mpsc::Sender;
 
 pub struct World {
     rooms: HashMap<String, Room>,
+    items: HashMap<String, ItemDefinition>,
     events: HashMap<String, Event>,
 }
 
@@ -15,6 +17,7 @@ impl World {
         World {
             rooms: HashMap::new(),
             events: HashMap::new(),
+            items: HashMap::new(),
         }
     }
 
@@ -36,6 +39,14 @@ impl World {
 
     pub fn add_room(&mut self, room: Room) {
         self.rooms.insert(room.get_id().to_string(), room);
+    }
+
+    pub fn add_item_definition(&mut self, item: ItemDefinition) {
+        self.items.insert(item.name.clone(), item);
+    }
+
+    pub fn get_item_definition(&mut self, id: &str) -> Option<&ItemDefinition> {
+        self.items.get(id)
     }
 
     pub fn tick(&self, sender: Sender<Command>) {

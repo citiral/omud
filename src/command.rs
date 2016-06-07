@@ -1,9 +1,10 @@
 use entity::*;
+use creature::Creature;
 use world::World;
 
 pub enum Command {
-    Add {
-        entity: Entity,
+    AddCreature {
+        creature: Creature,
         location: String,
     },
     Remove {
@@ -20,9 +21,9 @@ pub enum Command {
 impl Command {
     pub fn execute(self, world: &mut World) -> Result<(), &str> {
         match self {
-            Command::Add{entity, location} => {
+            Command::AddCreature{creature, location} => {
                 if let Some(room) = world.get_room_mut(&location) {
-                    room.add_entity(entity);
+                    room.add_creature(creature);
                     Ok(())
                 } else {
                     Err("Add: No such room found")
@@ -30,7 +31,7 @@ impl Command {
             },
             Command::Remove{id, location} => {
                 if let Some(room) = world.get_room_mut(&location) {
-                    room.remove_entity(id);
+                    room.remove_creature(id);
                     Ok(())
                 } else {
                     Err("Remove: no such room found")
@@ -38,13 +39,13 @@ impl Command {
             },
             Command::Move{id, from, to} => {
                 let entity = match world.get_room_mut(&from) {
-                    Some(room) => room.remove_entity(id),
+                    Some(room) => room.remove_creature(id),
                     None => None
                 };
 
                 if let Some(e) = entity {
                     if let Some(room) = world.get_room_mut(&to) {
-                        room.add_entity(e);
+                        room.add_creature(e);
                         Ok(())
                     } else {
                         Err("Move: to room not found")

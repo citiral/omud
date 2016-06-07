@@ -1,0 +1,20 @@
+{
+  "name": "heal_consumable",
+
+  "condition": [
+  ],
+
+  "success": [
+    {
+      "action": "tell",
+      "text": "You heal some HP.",
+    },
+    {
+      "action": "heal",
+      "value": 10.0,
+    }
+  ],
+
+  "failure": [
+  ]
+}

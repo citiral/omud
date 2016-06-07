@@ -1,15 +1,18 @@
 use std::collections::HashMap;
 use entity::*;
+use creature::Creature;
 use world::World;
 use command::Command;
 use std::sync::mpsc::Sender;
+use item::ItemSpawnDefinition;
 
 pub struct Room {
     id: String,
     pub name: String,
     pub description: String,
     exits: Vec<(String, String)>, // these are (exit name, room id)
-    pub entities: HashMap<usize, Entity>,
+    pub creatures: HashMap<usize, Creature>,
+    itemSpawnDefinitions: Vec<ItemSpawnDefinition>,
 }
 
 impl Room {
@@ -20,7 +23,8 @@ impl Room {
             name: id,
             description: "You see an empty room.".to_string(),
             exits: Vec::new(),
-            entities: HashMap::new()
+            creatures: HashMap::new(),
+            itemSpawnDefinitions: Vec::new(),
         }
     }
 
@@ -54,26 +58,26 @@ impl Room {
         &self.id
     }
 
-    pub fn add_entity(&mut self, entity: Entity) {
-        self.entities.insert(entity.get_id(), entity);
+    pub fn add_creature(&mut self, entity: Creature) {
+        self.creatures.insert(entity.get_id(), entity);
     }
 
-    pub fn get_entity(&self, id: usize) -> Option<&Entity> {
-        self.entities.get(&id)
+    pub fn get_creature(&self, id: usize) -> Option<&Creature> {
+        self.creatures.get(&id)
     }
 
-    pub fn get_entity_mut(&mut self, id: usize) -> Option<&mut Entity> {
-        self.entities.get_mut(&id)
+    pub fn get_creature_mut(&mut self, id: usize) -> Option<&mut Creature> {
+        self.creatures.get_mut(&id)
     }
 
-    pub fn remove_entity(&mut self, id: usize) -> Option<Entity> {
-        self.entities.remove(&id)
+    pub fn remove_creature(&mut self, id: usize) -> Option<Creature> {
+        self.creatures.remove(&id)
     }
 
     pub fn tick(&self, world: &World, sender: Sender<Command>) {
-        for (_, entity) in self.entities.iter() {
-            if let Some(entity) = entity.as_tickable() {
-                entity.tick(self, world, sender.clone());
+        for (_, creature) in self.creatures.iter() {
+            if let Some(creature) = creature.as_tick() {
+                creature.tick(self, world, sender.clone());
             }
         };
     }

@@ -1,10 +1,26 @@
-use entity::{Id, Tick, Describable};
 use player::Player;
-use room::Room;
-use world::World;
-use command::Command;
-use std::sync::mpsc::Sender;
+use entity::{Id, Tick};
 
-pub trait Creature: Tick + Id + Describable {
-    fn get_health(&self) -> f32;
+pub enum Creature {
+    Player(Player),
+}
+
+impl Creature {
+    pub fn get_id(&self) -> usize {
+        match self {
+            &Creature::Player(ref player) => player.get_id()
+        }
+    }
+
+    pub fn as_id(&self) -> &Id {
+        match self {
+            &Creature::Player(ref player) => player
+        }
+    }
+
+    pub fn as_tick(&self) -> Option<&Tick> {
+        match self {
+            &Creature::Player(ref player) => Some(player)
+        }
+    }
 }

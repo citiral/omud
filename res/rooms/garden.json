@@ -26,5 +26,14 @@
         ["use", "pull_spawn_lever"]
       ]
     }
+  ],
+
+  "items": [
+    {
+      "id": "coconut",
+      "count": 2,
+      "max": 5,
+      "respawn": 40
+    }
   ]
 }
