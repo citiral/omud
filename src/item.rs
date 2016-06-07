@@ -1,6 +1,6 @@
-/*use entity::{self, Item, Entity, Stackable, Describable, Id};
+use entity::{self, Describable, Id};
 
-pub struct Thing {
+/*pub struct Thing {
     id: usize,
     item_type: String,
     name: String,
@@ -56,15 +56,25 @@ pub struct ItemDefinition {
     pub stackable: bool,
 }
 
-pub struct ItemSpawnDefinition {
-    id: String,
-    count: u32,
-    max: u32,
-    respawn: u32,
+impl ItemDefinition {
+    pub fn spawn(&self, count: u32) -> Item {
+        Item {
+            id: entity::generate_id(),
+            count: count,
+            itemId: self.id.clone(),
+        }
+    }
 }
 
-pub struct Item<'a> {
-    id: usize,
-    count: u32,
-    itemId: &'a str,
+pub struct ItemSpawnDefinition {
+    pub id: String,
+    pub count: u32,
+    pub max: u32,
+    pub respawn: u32,
+}
+
+pub struct Item {
+    pub id: usize,
+    pub count: u32,
+    pub itemId: String,
 }

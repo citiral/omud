@@ -42,16 +42,22 @@ impl World {
     }
 
     pub fn add_item_definition(&mut self, item: ItemDefinition) {
-        self.items.insert(item.name.clone(), item);
+        self.items.insert(item.id.clone(), item);
     }
 
-    pub fn get_item_definition(&mut self, id: &str) -> Option<&ItemDefinition> {
+    pub fn get_item_definition(&self, id: &str) -> Option<&ItemDefinition> {
         self.items.get(id)
     }
 
     pub fn tick(&self, sender: Sender<Command>) {
         for (_, room) in self.rooms.iter() {
             room.tick(self, sender.clone());
+        }
+    }
+
+    pub fn init(&self, sender: Sender<Command>) {
+        for (_, room) in self.rooms.iter() {
+            room.init(self, sender.clone());
         }
     }
 }

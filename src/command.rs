@@ -1,4 +1,5 @@
 use entity::*;
+use item::Item;
 use creature::Creature;
 use world::World;
 
@@ -6,6 +7,10 @@ pub enum Command {
     AddCreature {
         creature: Creature,
         location: String,
+    },
+    AddItem {
+    	item: Item,
+    	location: String,
     },
     Remove {
     	id: usize,
@@ -24,6 +29,14 @@ impl Command {
             Command::AddCreature{creature, location} => {
                 if let Some(room) = world.get_room_mut(&location) {
                     room.add_creature(creature);
+                    Ok(())
+                } else {
+                    Err("Add: No such room found")
+                }
+            },
+            Command::AddItem{item, location} => {
+                if let Some(room) = world.get_room_mut(&location) {
+                    room.add_item(item);
                     Ok(())
                 } else {
                     Err("Add: No such room found")

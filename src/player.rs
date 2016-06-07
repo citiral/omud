@@ -87,7 +87,7 @@ impl Player {
                 self.writeln("");
                 self.writeln(&room.description);
                 self.writeln("");
-                self.write("Contents: ");
+                self.writeln(&format!("Contents: {}", &room.items.len()));
 
                 /*for entity in room.entities.values() {
                     if let Some(describable) = entity.as_describable() {

@@ -140,6 +140,15 @@ pub fn parse_room_from_resource(json: Json) -> Result<Room, ResourceLoadError> {
         room.add_exit(try!(get_string(&exit, "direction")).to_string(), try!(get_string(&exit, "room")).to_string())
     }
 
+    for spawn in try!(get_vec(&json, "items")) {
+        room.add_item_spawn(ItemSpawnDefinition {
+            id: try!(get_string(&spawn, "id")).to_string(),
+            count: 1,
+            max: 2,
+            respawn: 2,
+        });
+    }
+
     Ok(room)
 }
 

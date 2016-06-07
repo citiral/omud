@@ -124,7 +124,20 @@ fn main() {
     let mut now = PreciseTime::now();
     let steplength = Duration::milliseconds(1000/20);
 
+    world.init(sender.clone());
+
     loop {
+        // handle all commands
+        loop {
+            if let Ok(command) = receiver.try_recv() {
+                if let Err(e) = command.execute(&mut world) {
+                    println!("Error executing command: {}", e);
+                }
+            } else {
+                break;
+            }
+        }
+
         // tick the world
         let elapsed = now.to(PreciseTime::now());
 
@@ -135,17 +148,6 @@ fn main() {
             let remaining = steplength - elapsed;
             thread::sleep(std::time::Duration::from_millis(remaining.num_milliseconds() as u64));
             continue;
-        }
-
-        // handle all commands
-        loop {
-            if let Ok(command) = receiver.try_recv() {
-                if let Err(e) = command.execute(&mut world) {
-                    println!("Error executing command: {}", e);
-                }
-            } else {
-                break;
-            }
         }
     }
 }

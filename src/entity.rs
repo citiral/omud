@@ -12,14 +12,6 @@ pub fn generate_id() -> usize {
     ENTITY_ID_GENERATOR.fetch_add(1, Ordering::Relaxed)
 }
 
-pub trait Item {
-    fn get_item_type(&self) -> &str;
-}
-
-pub trait Stackable: Item {
-    fn get_stack_count(&self) -> u64;
-}
-
 pub trait Describable {
     fn get_name(&self) -> String;
     fn get_description(&self) -> String;
@@ -28,6 +20,10 @@ pub trait Describable {
 pub trait Id {
     fn get_id(&self) -> usize;
     fn set_id(&mut self, id: usize);
+}
+
+pub trait Init {
+	fn init(&self, room: &Room, world: &World, sender: Sender<Command>);
 }
 
 pub trait Tick {
