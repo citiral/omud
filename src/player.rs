@@ -6,7 +6,6 @@ use std::cell::RefCell;
 use world::World;
 use command::Command;
 use room::Room;
-use creature::Creature;
 use entity::{self, Id, Tick, Describable};
 
 pub struct Player {

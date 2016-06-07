@@ -1,14 +1,16 @@
 use std::fs::{self, DirEntry, File};
 use std::path::{Path};
 use std::io::Read;
-use world::{World, WorldData};
-use room::Room;
-use item::*;
-use rustc_serialize::json::{self, Json};
 use std::io;
 use std::fmt;
 use std::error::{self, Error};
 use std::convert::From;
+
+use rustc_serialize::json::{self, Json};
+
+use world::{World, WorldData};
+use room::Room;
+use item::*;
 use WORLD_DATA;
 
 #[derive(Debug)]
