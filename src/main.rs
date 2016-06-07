@@ -12,21 +12,17 @@ mod command;
 mod player;
 mod item;
 mod json;
+mod event;
 
 use player::*;
 use command::*;
-use room::*;
-use world::*;
 
-use std::fs::*;
-use item::*;
 use entity::*;
 use std::thread;
-use std::io::{self, BufRead, BufReader, Write, Read};
+use std::io::{self, BufRead, BufReader, Write};
 use std::net::{TcpStream, TcpListener};
 use std::sync::mpsc::{channel, Sender};
 use time::{Duration, PreciseTime};
-use rustc_serialize::json::Json;
 
 
 fn start_listening(ip: &str, sender: Sender<Command>) -> Result<(), io::Error> {
@@ -110,67 +106,38 @@ fn start_local_dummy_client(ip: String) {
     });
 }
 
-fn create_test_world<'a>() -> World {
-    let mut world = World::new();
-
-    let mut r1 = Room::new("spawn".to_string());
-    let mut r2 = Room::new("beep1".to_string());
-    let mut r3 = Room::new("beep2".to_string());
-
-    r1.connect_to_room(&mut r2, "north".to_string(), "south".to_string());
-
-    r2.add_entity(Entity::Thing(Thing::new("gold".to_string(), "gold coin".to_string(), 1)));
-
-    world.add_room(r1);
-    world.add_room(r2);
-    world.add_room(r3);
-
-
-
-    world
-}
-
 fn main() {
-
     let mut world = json::parse_world_from_resources();
-
-    if let Err(err) = world {
-        println!("Error parsing world: {}", err);
-        return;
-    }
-
-    let mut world = world.unwrap();
-
 
     let (sender, receiver) = channel::<Command>();
 
+    // start the server
     if let Err(e) = start_listening("localhost:25565", sender.clone()) {
         println!("Failed hosting server: {}.", e);
         return;
     }
 
-
+    // start a client
     start_local_dummy_client("localhost:25565".to_string());
 
+    // now the main game loop begins
     let mut now = PreciseTime::now();
     let steplength = Duration::milliseconds(1000/20);
 
     loop {
-
+        // tick the world
         let elapsed = now.to(PreciseTime::now());
 
         if elapsed > steplength {
-        // tick the world
             now = PreciseTime::now();
             world.tick(sender.clone());
         } else {
             let remaining = steplength - elapsed;
-            //println!("sleeping for {}", remaining.num_milliseconds());
             thread::sleep(std::time::Duration::from_millis(remaining.num_milliseconds() as u64));
             continue;
         }
 
-        // handle all events
+        // handle all commands
         loop {
             if let Ok(command) = receiver.try_recv() {
                 if let Err(e) = command.execute(&mut world) {

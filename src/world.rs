@@ -1,17 +1,29 @@
 use room::*;
+use event::*;
+
 use std::collections::HashMap;
 use command::Command;
 use std::sync::mpsc::Sender;
 
 pub struct World {
-    rooms: HashMap<String, Room>
+    rooms: HashMap<String, Room>,
+    events: HashMap<String, Event>,
 }
 
 impl World {
     pub fn new() -> World {
         World {
-            rooms: HashMap::new()
+            rooms: HashMap::new(),
+            events: HashMap::new(),
         }
+    }
+
+    pub fn get_event(&self, identifier: &str) -> Option<&Event> {
+        self.events.get(identifier)
+    }
+
+    pub fn add_event(&mut self, event: Event) {
+        self.events.insert(event.get_id().to_string(), event);
     }
 
     pub fn get_room(&self, identifier: &str) -> Option<&Room> {

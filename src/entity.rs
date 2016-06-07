@@ -9,10 +9,6 @@ use creature::Creature;
 
 static ENTITY_ID_GENERATOR: AtomicUsize = ATOMIC_USIZE_INIT;
 
-pub trait AsEntity {
-    fn as_entity(self) -> Entity;
-}
-
 pub trait Item {
     fn get_item_type(&self) -> &str;
 }

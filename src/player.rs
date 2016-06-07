@@ -4,7 +4,7 @@ use world::World;
 use std::sync::mpsc::Sender;
 use command::Command;
 use room::Room;
-use entity::{self, Entity, Id, Tick, Describable, AsEntity};
+use entity::{self, Id, Tick, Describable};
 use std::cell::RefCell;
 use creature::Creature;
 
@@ -95,7 +95,7 @@ impl Player {
                 self.writeln("");
                 self.write("Contents: ");
 
-                for entity in room.entities.values() {
+                /*for entity in room.entities.values() {
                     if let Some(describable) = entity.as_describable() {
                         if entity.get_id() == self.id {
                             self.write("you ");
@@ -104,7 +104,7 @@ impl Player {
                             self.write(" ");
                         }
                     }
-                }
+                }*/
 
                 self.writeln("");
 

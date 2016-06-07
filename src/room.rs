@@ -3,7 +3,6 @@ use entity::*;
 use world::World;
 use command::Command;
 use std::sync::mpsc::Sender;
-use rustc_serialize::json::Json;
 
 pub struct Room {
     id: String,

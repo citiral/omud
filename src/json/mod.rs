@@ -126,7 +126,7 @@ pub fn parse_room_from_resource<P: AsRef<Path>>(path: P) -> Result<Room, Resourc
 
 }
 
-pub fn parse_world_from_resources() -> Result<World, ResourceLoadError> {
+pub fn parse_world_from_resources() -> World {
     let mut world = World::new();
 
     // first parse all events
@@ -134,10 +134,13 @@ pub fn parse_world_from_resources() -> Result<World, ResourceLoadError> {
     // then parse all rooms
     if let Ok(dir) = fs::read_dir("./res/rooms") {
         for path in dir {
-            let path = try!(path);
-            world.add_room(try!(parse_room_from_resource(path.path())));
+            path.map(|path| {
+                parse_room_from_resource(path.path())
+                    .map(|room| world.add_room(room))
+                    .map_err(|err| println!("Failuring parsing {}: {}", path.path().to_string_lossy(), err))
+            });
         }
     }
 
-    Ok(world)
+    world
 }
