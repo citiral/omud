@@ -1,4 +1,4 @@
-use entity::{self, Describable, Id};
+use entity::{self, Describable, Id, Tick};
 use datastore::Unique;
 use WORLD_DATA;
 
@@ -10,10 +10,11 @@ pub struct ItemDefinition {
 }
 
 pub struct ItemSpawn {
-    pub id: String,
-    pub count: u32,
-    pub max: u32,
-    pub respawn_rate: u32,
+    id: String,
+    count: u32,
+    max: u32,
+    respawn_rate: u32,
+    current_tick: u32,
 }
 
 pub struct Item {
@@ -48,15 +49,15 @@ impl ItemDefinition {
         }
     }
 
-    pub fn get_id(&self) -> &str {
+    pub fn get_id(&self) -> &String {
         &self.id
     }
 
-    pub fn get_name(&self) -> &str {
+    pub fn get_name(&self) -> &String {
         &self.name
     }
 
-    pub fn get_description(&self) -> &str {
+    pub fn get_description(&self) -> &String {
         &self.description
     }
 
@@ -72,10 +73,11 @@ impl ItemSpawn {
             count: count,
             max: max,
             respawn_rate: respawn_rate,
+            current_tick: 0,
         }
     }
 
-    pub fn get_id(&self) -> &str {
+    pub fn get_id(&self) -> &String {
         &self.id
     }
 
@@ -105,7 +107,7 @@ impl Id for Item {
 impl Describable for Item {
     fn get_name(&self) -> String {
         let def = self.get_item_definition();
-        let name = def.map(|def| def.get_name()).unwrap_or("INVALID_ITEM").to_string();
+        let name = def.map(|def| def.get_name().to_string()).unwrap_or("INVALID_ITEM".to_string());
 
         if self.count > 1 {
             name + " (" + &self.count.to_string() + ")"
@@ -116,7 +118,7 @@ impl Describable for Item {
 
     fn get_description(&self) -> String {
         let def = self.get_item_definition();
-        def.map(|def| def.get_description()).unwrap_or("INVALID_ITEM").to_string()
+        def.map(|def| def.get_description().to_string()).unwrap_or("INVALID_ITEM".to_string())
     }
 }
 
@@ -129,7 +131,7 @@ impl Item {
         self.count = count
     }
 
-    pub fn get_item_id(&self) -> &str {
+    pub fn get_item_id(&self) -> &String {
         &self.item_id
     }
 

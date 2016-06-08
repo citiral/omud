@@ -90,14 +90,14 @@ impl Room {
     pub fn init(&self, world: &World, sender: Sender<Command>) {
         // spawn the initial items
         for spawn in &self.item_spawns {
-            if let Some(definition) = WORLD_DATA.items.get(&spawn.id) {
+            if let Some(definition) = WORLD_DATA.items.get(&spawn.get_id()) {
                 if definition.stackable {
                     let _ = sender.send(Command::AddItem {
-                        item: definition.spawn(spawn.count),
+                        item: definition.spawn(spawn.get_count()),
                         location: self.id.clone(),
                     });
                 } else {
-                    for _ in 0..spawn.count {
+                    for _ in 0..spawn.get_count() {
                         let _ = sender.send(Command::AddItem {
                             item: definition.spawn(1),
                             location: self.id.clone(),

@@ -2,11 +2,13 @@ use std::net::{TcpStream, Shutdown};
 use std::io::{Read, Write};
 use std::sync::mpsc::Sender;
 use std::cell::RefCell;
+use std::collections::HashMap;
 
 use world::World;
 use command::Command;
 use room::Room;
-use entity::{self, Id, Tick, Describable};
+use entity::{self, Id, Tick, Describable, Container};
+use item::Item;
 
 pub struct Player {
     id: usize,
@@ -14,6 +16,7 @@ pub struct Player {
     health: f32,
     connected: bool,
     stream: RefCell<TcpStream>,
+    inventory: HashMap<usize, Item>,
 }
 
 impl Id for Player {
@@ -54,6 +57,7 @@ impl Player {
             health: 100.0,
             connected: false,
             stream: RefCell::new(stream),
+            inventory: HashMap::new(),
         }
     }
 
@@ -160,5 +164,31 @@ impl Player {
     fn writeln(&self, line: &str) {
         self.stream.borrow_mut().write(line.as_bytes()).unwrap();
         self.stream.borrow_mut().write(b"\r\n").unwrap();
+    }
+}
+
+impl Container for Player {
+    fn has_item(&self, id: usize) -> bool {
+        self.inventory.contains_key(&id)
+    }
+
+    fn add_item(&mut self, item: Item) {
+        self.inventory.insert(item.get_id(), item);
+    }
+
+    fn get_item(&self, id: usize) -> Option<&Item> {
+        self.inventory.get(&id)
+    }
+
+    fn get_item_mut(&mut self, id: usize) -> Option<&mut Item> {
+        self.inventory.get_mut(&id)
+    }
+
+    fn remove_item(&mut self, id: usize) -> Option<Item> {
+        self.inventory.remove(&id)
+    }
+
+    fn item_count(&self) -> usize {
+        self.inventory.len()
     }
 }

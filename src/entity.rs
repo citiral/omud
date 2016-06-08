@@ -1,8 +1,11 @@
 use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
 use std::sync::mpsc::Sender;
+use std::iter::Iterator;
+
 use command::Command;
 use room::Room;
 use world::World;
+use item::Item;
 
 static ENTITY_ID_GENERATOR: AtomicUsize = ATOMIC_USIZE_INIT;
 
@@ -26,4 +29,14 @@ pub trait Init {
 
 pub trait Tick {
     fn tick(&self, room: &Room, world: &World, sender: Sender<Command>);
+}
+
+pub trait Container {
+	fn has_item(&self, id: usize) -> bool;
+	fn add_item(&mut self, item: Item);
+	fn get_item(&self, id: usize) -> Option<&Item>;
+	fn get_item_mut(&mut self, id: usize) -> Option<&mut Item>;
+	fn remove_item(&mut self, id: usize) -> Option<Item>;
+
+	fn item_count(&self) -> usize;
 }
