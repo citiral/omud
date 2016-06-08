@@ -16,6 +16,7 @@ mod item;
 mod json;
 mod event;
 mod datastore;
+mod output;
 
 use player::*;
 use command::*;

@@ -13,6 +13,10 @@ pub fn generate_id() -> usize {
     ENTITY_ID_GENERATOR.fetch_add(1, Ordering::Relaxed)
 }
 
+pub trait Living {
+    fn get_health(&self) -> f32;
+}
+
 pub trait Describable {
     fn get_name(&self) -> String;
     fn get_description(&self) -> String;
@@ -31,12 +35,16 @@ pub trait Tick {
     fn tick(&self, room: &Room, world: &World, sender: Sender<Command>);
 }
 
-pub trait Container {
-	fn has_item(&self, id: usize) -> bool;
-	fn add_item(&mut self, item: Item);
-	fn get_item(&self, id: usize) -> Option<&Item>;
-	fn get_item_mut(&mut self, id: usize) -> Option<&mut Item>;
-	fn remove_item(&mut self, id: usize) -> Option<Item>;
+pub trait Container<'a> {
+    type Iter: Iterator;
 
-	fn item_count(&self) -> usize;
+	fn has_item(&'a self, id: usize) -> bool;
+	fn add_item(&'a mut self, item: Item);
+	fn get_item(&'a self, id: usize) -> Option<&'a Item>;
+	fn get_item_mut(&'a mut self, id: usize) -> Option<&'a mut Item>;
+	fn remove_item(&'a mut self, id: usize) -> Option<Item>;
+
+	fn item_count(&'a self) -> usize;
+
+    fn inventory_iter(&'a self) -> Self::Iter;
 }

@@ -1,5 +1,5 @@
 use player::Player;
-use entity::{Id, Describable, Tick, Init};
+use entity::{Id, Describable, Tick, Init, Living};
 
 pub enum Creature {
     Player(Player),
@@ -15,6 +15,12 @@ impl Creature {
     pub fn as_id(&self) -> &Id {
         match self {
             &Creature::Player(ref player) => player
+        }
+    }
+
+    pub fn as_living(&self) -> Option<&Living> {
+        match self {
+            &Creature::Player(ref player) => Some(player)
         }
     }
 
